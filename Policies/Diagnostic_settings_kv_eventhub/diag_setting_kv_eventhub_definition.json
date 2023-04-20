@@ -1,0 +1,185 @@
+{
+	"id": "/subscriptions/d4253ee0-3b4d-4a02-bfe2-71475e7f4a1f/providers/Microsoft.Authorization/policyDefinitions/diag_setting_kv_eventhub",
+	"type": "Microsoft.Authorization/policyDefinitions",
+	"name": "diag_setting_kv_eventhub",
+	"properties": {
+		"displayName": "Deploy Diagnostic Settings for Key Vault to Event Hub with variable destinations",
+		"policyType": "Custom",
+		"mode": "Indexed",
+		"description": "Deploys the diagnostic settings for Key Vault to stream to a regional Event Hub when any Key Vault which is missing this diagnostic settings is created or updated.",
+		"metadata": {
+			"version": "0.0.1",
+			"category": "Key Vault"
+		},
+		"parameters": {
+			"profileName": {
+				"type": "String",
+				"metadata": {
+					"displayName": "Profile name",
+					"description": "The diagnostic settings profile name"
+				},
+				"defaultValue": "setbypolicy"
+			},
+			"metricsEnabled": {
+				"type": "String",
+				"metadata": {
+					"displayName": "Enable metrics",
+					"description": "Whether to enable metrics stream to the Event Hub - True or False"
+				},
+				"allowedValues": [
+					"True",
+					"False"
+				],
+				"defaultValue": "True"
+			},
+			"logsEnabled": {
+				"type": "String",
+				"metadata": {
+					"displayName": "Enable logs",
+					"description": "Whether to enable logs stream to the Event Hub  - True or False"
+				},
+				"allowedValues": [
+					"True",
+					"False"
+				],
+				"defaultValue": "True"
+			}
+		},
+		"policyRule": {
+			"if": {
+				"field": "type",
+				"equals": "Microsoft.KeyVault/vaults"
+			},
+			"then": {
+				"effect": "deployIfNotExists",
+				"details": {
+					"type": "Microsoft.Insights/diagnosticSettings",
+					"name": "[parameters('profileName')]",
+					"existenceCondition": {
+						"allOf": [
+							{
+								"count": {
+									"field": "Microsoft.Insights/diagnosticSettings/logs[*]",
+									"where": {
+										"field": "Microsoft.Insights/diagnosticSettings/logs[*].enabled",
+										"equals": "[parameters('logsEnabled')]"
+									}
+								},
+								"greaterOrEquals": 1
+							},
+							{
+								"count": {
+									"field": "Microsoft.Insights/diagnosticSettings/metrics[*]",
+									"where": {
+										"field": "Microsoft.Insights/diagnosticSettings/metrics[*].enabled",
+										"equals": "[parameters('metricsEnabled')]"
+									}
+								},
+								"greaterOrEquals": 1
+							}
+						]
+					},
+					"roleDefinitionIds": [
+						"/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+					],
+					"deployment": {
+						"properties": {
+							"mode": "incremental",
+							"template": {
+								"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+								"contentVersion": "1.0.0.0",
+								"parameters": {
+									"vaultName": {
+										"type": "string"
+									},
+									"location": {
+										"type": "string"
+									},
+									"environment": {
+										"type": "string"
+									},
+									"metricsEnabled": {
+										"type": "string"
+									},
+									"logsEnabled": {
+										"type": "string"
+									},
+									"profileName": {
+										"type": "string"
+									}
+								},
+								"variables": {
+									"eventHubRuleIds": {
+										"eastus_dev": "/subscriptions/d4253ee0-3b4d-4a02-bfe2-71475e7f4a1f/resourceGroups/policy-test-rg/providers/Microsoft.EventHub/namespaces/policy-test-eastus-dev/authorizationrules/RootManageSharedAccessKey",
+										"eastus_prod": "/subscriptions/d4253ee0-3b4d-4a02-bfe2-71475e7f4a1f/resourceGroups/policy-test-rg/providers/Microsoft.EventHub/namespaces/policy-test-eastus-prod/authorizationrules/RootManageSharedAccessKey",
+										"centralus_dev": "/subscriptions/d4253ee0-3b4d-4a02-bfe2-71475e7f4a1f/resourceGroups/policy-test-rg/providers/Microsoft.EventHub/namespaces/policy-test-centralus-dev/authorizationrules/RootManageSharedAccessKey",
+										"centralus_prod": "/subscriptions/d4253ee0-3b4d-4a02-bfe2-71475e7f4a1f/resourceGroups/policy-test-rg/providers/Microsoft.EventHub/namespaces/policy-test-centralus-prod/authorizationrules/RootManageSharedAccessKey"
+									}
+								},
+								"resources": [
+									{
+										"type": "Microsoft.KeyVault/vaults/providers/diagnosticSettings",
+										"apiVersion": "2017-05-01-preview",
+										"name": "[concat(parameters('vaultName'), '/', 'Microsoft.Insights/', parameters('profileName'))]",
+										"location": "[parameters('location')]",
+										"dependsOn": [],
+										"properties": {
+											"eventHubAuthorizationRuleId": "[variables('eventHubRuleIds')[concat(parameters('location'), '_', parameters('environment'))]]",
+											"eventHubName": "diag_settings",
+											"metrics": [
+												{
+													"category": "AllMetrics",
+													"enabled": "[parameters('metricsEnabled')]",
+													"retentionPolicy": {
+														"enabled": false,
+														"days": 0
+													}
+												}
+											],
+											"logs": [
+												{
+													"category": "AuditEvent",
+													"enabled": "[parameters('logsEnabled')]"
+												},
+												{
+													"category": "AzurePolicyEvaluationDetails",
+													"enabled": "[parameters('logsEnabled')]"
+												}
+											]
+										}
+									}
+								],
+								"outputs": {
+									"policy": {
+										"type": "string",
+										"value": "[concat('Enabled diagnostic settings for ', parameters('vaultName'))]"
+									}
+								}
+							},
+							"parameters": {
+								"location": {
+									"value": "[field('location')]"
+								},
+								"vaultName": {
+									"value": "[field('name')]"
+								},
+								"environment": {
+									"value": "[field('tags[environment]')]"
+								},
+								"metricsEnabled": {
+									"value": "[parameters('metricsEnabled')]"
+								},
+								"logsEnabled": {
+									"value": "[parameters('logsEnabled')]"
+								},
+								"profileName": {
+									"value": "[parameters('profileName')]"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

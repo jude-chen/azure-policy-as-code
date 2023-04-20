@@ -1,0 +1,21 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  - main
+
+pool:
+  vmImage: windows-latest
+
+steps:
+  - task: AzurePowerShell@5
+    inputs:
+      azureSubscription: "judechen-demo-01(d4253ee0-3b4d-4a02-bfe2-71475e7f4a1f)"
+      ScriptType: "InlineScript"
+      Inline: |
+        choco install armclient --source=https://chocolatey.org/api/v2/
+        ARMClient.exe azlogin
+        ARNClient.exe get /subscriptions?api-version=2018-01-01
+      azurePowerShellVersion: "LatestVersion"

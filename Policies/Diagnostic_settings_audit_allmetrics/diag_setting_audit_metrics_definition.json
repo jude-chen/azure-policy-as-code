@@ -1,0 +1,124 @@
+{
+  "id": "/subscriptions/d4253ee0-3b4d-4a02-bfe2-71475e7f4a1f/providers/Microsoft.Authorization/policyDefinitions/diag_setting_audit_allmetrics",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "diag_setting_audit_allmetrics",
+  "properties": {
+    "displayName": "Audit diagnostic setting with All Metrics sent to the target eventhubs",
+    "policyType": "Custom",
+    "mode": "All",
+    "description": "Audit diagnostic setting with All Metrics sent to the target eventhubs",
+    "metadata": {
+      "version": "0.0.2",
+      "category": "Monitoring"
+    },
+    "parameters": {
+      "listOfResourceTypes": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Resource Types",
+          "strongType": "resourceTypes"
+        },
+        "defaultValue": [
+          "Microsoft.KeyVault/vaults"
+        ]
+      },
+      "metricsEnabled": {
+        "type": "Boolean",
+        "metadata": {
+          "displayName": "Metrics Enabled"
+        },
+        "allowedValues": [
+          true,
+          false
+        ],
+        "defaultValue": true
+      },
+      "listOfEventHubIds": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "List of eventhubs to be checked"
+        },
+        "defaultValue": [
+          "/subscriptions/d4253ee0-3b4d-4a02-bfe2-71475e7f4a1f/resourceGroups/policy-test-rg/providers/Microsoft.EventHub/namespaces/policy-test-eastus-dev/authorizationrules/RootManageSharedAccessKey",
+          "/subscriptions/d4253ee0-3b4d-4a02-bfe2-71475e7f4a1f/resourceGroups/policy-test-rg/providers/Microsoft.EventHub/namespaces/policy-test-eastus-prod/authorizationrules/RootManageSharedAccessKey",
+          "/subscriptions/d4253ee0-3b4d-4a02-bfe2-71475e7f4a1f/resourceGroups/policy-test-rg/providers/Microsoft.EventHub/namespaces/policy-test-centralus-dev/authorizationrules/RootManageSharedAccessKey",
+          "/subscriptions/d4253ee0-3b4d-4a02-bfe2-71475e7f4a1f/resourceGroups/policy-test-rg/providers/Microsoft.EventHub/namespaces/policy-test-centralus-prod/authorizationrules/RootManageSharedAccessKey"
+        ]
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "notIn": [
+              "microsoft.security/assessmentmetadata",
+              "microsoft.network/networksecuritygroups/securityrules",
+              "microsoft.storage/storageaccounts/queueservices/queues",
+              "microsoft.operationalinsights/workspaces/tables",
+              "microsoft.machinelearningservices/workspaces/jobs",
+              "microsoft.authorization/rolemanagementpolicies",
+              "microsoft.apimanagement/service/apis/operations",
+              "microsoft.apimanagement/service/apis/operations/tags",
+              "microsoft.compute/disks",
+              "microsoft.compute/virtualmachines/extensions",
+              "microsoft.authorization/roleassignments",
+              "microsoft.storage/storageaccounts/tableservices/tables",
+              "microsoft.insights/components/proactivedetectionconfigs",
+              "microsoft.network/routetables/routes",
+              "microsoft.machinelearningservices/workspaces/environments/versions",
+              "microsoft.sql/servers/databases/advisors",
+              "microsoft.security/policies",
+              "microsoft.resources/subscriptions/resourcegroups",
+              "microsoft.authorization/roledefinitions",
+              "microsoft.apimanagement/service/apis/operations/policies",
+              "microsoft.compute/snapshots",
+              "microsoft.datafactory/factories/pipelines",
+              "microsoft.datafactory/factories/datasets",
+              "microsoft.network/virtualnetworks/subnets",
+              "microsoft.security/pricings"
+            ]
+          },
+          {
+            "field": "type",
+            "in": "[parameters('listOfResourceTypes')]"
+          }
+        ]
+      },
+      "then": {
+        "effect": "AuditIfNotExists",
+        "details": {
+          "type": "Microsoft.Insights/diagnosticSettings",
+          "existenceCondition": {
+            "anyOf": [
+              {
+                "not": {
+                  "field": "Microsoft.Insights/diagnosticSettings/metrics.enabled",
+                  "equals": "[parameters('metricsEnabled')]"
+                }
+              },
+              {
+                "not": {
+                  "field": "Microsoft.Insights/diagnosticSettings/metrics[*].category",
+                  "equals": "AllMetrics"
+                }
+              },
+              {
+                "not": {
+                  "field": "Microsoft.Insights/diagnosticSettings/eventHubAuthorizationRuleId",
+                  "in": "[parameters('listOfEventHubIds')]"
+                }
+              },
+              {
+                "not": {
+                  "field": "Microsoft.Insights/diagnosticSettings/eventHubName",
+                  "equals": "diag_settings"
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}
