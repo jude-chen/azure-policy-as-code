@@ -15,12 +15,13 @@ pool:
   vmImage: windows-latest
 
 steps:
-  - task: AzurePowerShell@5
+  - task: AzureCLI@2
     inputs:
       azureSubscription: "judechen-demo-01(d4253ee0-3b4d-4a02-bfe2-71475e7f4a1f)"
-      ScriptType: "InlineScript"
-      Inline: |
+      scriptType: "ps"
+      scriptLocation: "inlineScript"
+      addSpnToEnvironment: true
+      inlineScript: |
         choco install armclient --source=https://chocolatey.org/api/v2/
-        ARMClient.exe spn $env:AZURE_TENANT_ID $env:AZURE_CLIENT_ID $env:AZURE_CLIENT_SECRET
+        ARMClient.exe spn $env:tenantId $env:servicePrincipalId $env:servicePrincipalKey
         ARMClient.exe get /subscriptions?api-version=2018-01-01
-      azurePowerShellVersion: "LatestVersion"
