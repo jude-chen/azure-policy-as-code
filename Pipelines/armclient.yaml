@@ -27,7 +27,7 @@ steps:
           $CurrentBranch = Get-GitBranchName
           if (($CurrentBranch -eq 'main') -or ($CurrentBranch -eq 'master')) {
               Write-Verbose 'Gathering modified files from the pull request' -Verbose
-              $Diff = git diff --name-only --diff-filter=AM HEAD~ HEAD
+              $Diff = git diff --name-only --diff-filter=AM HEAD~ HEAD --
           } else {
               Write-Verbose 'Gathering modified files between current branch and main' -Verbose
               $Diff = git diff --name-only --diff-filter=AM origin/main
