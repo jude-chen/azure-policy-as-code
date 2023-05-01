@@ -8,7 +8,7 @@
     "mode": "All",
     "description": "Audit diagnostic setting with All Metrics sent to the target eventhubs",
     "metadata": {
-      "version": "0.0.4",
+      "version": "0.0.5",
       "category": "Monitoring"
     },
     "parameters": {
