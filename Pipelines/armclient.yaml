@@ -76,7 +76,7 @@ steps:
           $file=$filelist[$i]
           ## Push policy defitions, assignments, etc.
           Write-Host "Processing file $file"
-          if ($file -like "Policies/*/*.json")
+          if ($file -like "*\Policies\*\*.json")
           {
             $policy_id=$(Get-Content $file -Raw | ConvertFrom-Json).id
             Write-Host "Processing policy $policy_id"
