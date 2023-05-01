@@ -66,6 +66,7 @@ steps:
         #ARMClient.exe get /subscriptions?api-version=2018-01-01
         ## get the changed files
         Write-Host "current path: $pwd"
+        dir
         $filelist=Get-ModifiedFileList
         $count=$filelist.Length
         Write-Host "Processing $count files"
