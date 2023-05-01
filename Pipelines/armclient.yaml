@@ -71,18 +71,18 @@ steps:
         ## get the changed files
         $filelist=Get-ModifiedFileList
         $count=$filelist.Length
-        Write-Host "Processing $count files"
+        Write-Host "Processing ${count} files"
         For ($i=0; $i -lt $count; $i++) {
           $file=$filelist[$i]
           ## Push policy defitions, assignments, etc.
-          Write-Host "Processing file $file"
+          Write-Host "Processing file ${file}"
           if ($file -like "*\Policies\*\*.json")
           {
             $policy_id=$(Get-Content $file -Raw | ConvertFrom-Json).id
             Write-Host "Processing policy $policy_id"
-            ARMClient.exe PUT "${id}?api-version=2021-09-01" @$file
+            ARMClient.exe PUT "${id}?api-version=2021-09-01" @${file}
           }
           else {
-            Write-Host "Not a JSON file, skipping file $file"
+            Write-Host "Not a JSON file, skipping file ${file}"
           }
         }
