@@ -65,7 +65,7 @@ steps:
             return $BranchName
         }
 
-        choco install armclient --source=https://chocolatey.org/api/v2/
+        choco install armclient --source=https://chocolatey.org/api/v2/ --no-progress
         ARMClient.exe spn $env:tenantId $env:servicePrincipalId $env:servicePrincipalKey
         #ARMClient.exe get /subscriptions?api-version=2018-01-01
         ## get the changed files
@@ -80,7 +80,7 @@ steps:
           {
             $policy_id=$(Get-Content $file -Raw | ConvertFrom-Json).id
             Write-Host "Processing policy $policy_id"
-            & ARMClient.exe PUT "${id}?api-version=2021-09-01" @$file
+            & ARMClient.exe PUT "${policy_id}?api-version=2021-09-01" @${file}
           }
           else {
             Write-Host "Not a JSON file, skipping file ${file}"
