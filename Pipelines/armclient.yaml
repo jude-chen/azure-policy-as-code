@@ -80,7 +80,7 @@ steps:
           {
             $policy_id=$(Get-Content $file -Raw | ConvertFrom-Json).id
             Write-Host "Processing policy $policy_id"
-            ARMClient.exe PUT "$id?api-version=2021-09-01" @$file
+            ARMClient.exe PUT "${id}?api-version=2021-09-01" @$file
           }
           else {
             Write-Host "Not a JSON file, skipping file $file"
