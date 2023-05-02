@@ -8,7 +8,7 @@
 		"mode": "Indexed",
 		"description": "Deploys the diagnostic settings for Key Vault to stream to a regional Event Hub when any Key Vault which is missing this diagnostic settings is created or updated.",
 		"metadata": {
-			"version": "0.0.1",
+			"version": "1.0.0",
 			"category": "Key Vault"
 		},
 		"parameters": {
